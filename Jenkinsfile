@@ -49,11 +49,20 @@ builders = pipeline_builder.createBuilders { container ->
   //   """
   // } // stage
 
+  pipeline_builder.stage("${container.key}: Install Ansible") {
+    container.sh """
+      sudo apt-get update
+      sudo apt-get install -y software-properties-common
+      sudo apt-add-repository --yes --update ppa:ansible/ansible
+      sudo apt-get install -y ansible
+      ansible --version
+    """
+  } // stage
+
   pipeline_builder.stage("${container.key}: Run Ansible") {
     container.sh """
-      pwd
-      find . -maxdepth 2
-      
+      ansible-playbook -i ./dm-ansible/inventories/site \
+      -l efu0234 ./dm-ansible/efu.yml
     """
   } // stage
 }  // createBuilders
