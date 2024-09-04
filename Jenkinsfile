@@ -19,43 +19,43 @@ properties([[
     artifactDaysToKeepStr: '',
     artifactNumToKeepStr: num_artifacts_to_keep,
     daysToKeepStr: '',
-    numToKeepStr: ''
+    numToKeepStr: num_artifacts_to_keep
   ]
 ]]);
 
-// Initialize the pipeline builder
 pipeline_builder = new PipelineBuilder(this, container_build_nodes)
 
-// Define build stages
 builders = pipeline_builder.createBuilders { container ->
-  pipeline_builder.stage("${container.key}: Checkout") {
+
+  pipeline_builder.stage("${container.key}: Checkout GitLab Repo") {
     dir(pipeline_builder.project) {
-      scm_vars = checkout scm
+      // Git checkout using access token
+      container.sh """
+        git clone https://any_username:_58bVWB3aXGBENqrzHTK@gitlab.esss.lu.se/ecdc/dm-ansible.git
+      """
     }
     container.copyTo(pipeline_builder.project, pipeline_builder.project)
   }  // stage
 
-  pipeline_builder.stage("${container.key}: Setup Python Environment") {
-    container.sh """
-      which python3
-      python3 --version
-      python3 -m venv venv
-      . venv/bin/activate
-      python3 -m pip install --upgrade pip
-      python3 --version
-    """
-  } // stage
+
+  // pipeline_builder.stage("${container.key}: Setup Python Environment") {
+  //   container.sh """
+  //     which python3
+  //     python3 --version
+  //     python3 -m venv venv
+  //     . venv/bin/activate
+  //     python3 -m pip install --upgrade pip
+  //     python3 --version
+  //   """
+  // } // stage
 
   pipeline_builder.stage("${container.key}: Run Ansible") {
     container.sh """
-      pwd
-      find . -maxdepth 2
+      find test-nightly-deployments -maxdepth 2
     """
   } // stage
 }  // createBuilders
 
-      // ansible-playbook -i ${pipeline_builder.project}/inventories/site \
-      // -l efu0234 ${pipeline_builder.project}/efu.yml
 
 // Execute the pipeline
 node {
