@@ -49,6 +49,7 @@ builders = pipeline_builder.createBuilders { container ->
   pipeline_builder.stage("${container.key}: Run Ansible") {
     container.sh """
       pwd
+      find . -maxdepth 2
     """
   } // stage
 }  // createBuilders
