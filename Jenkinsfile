@@ -51,10 +51,10 @@ builders = pipeline_builder.createBuilders { container ->
 
   pipeline_builder.stage("${container.key}: Install Ansible") {
     container.sh """
-      sudo apt-get update
-      sudo apt-get install -y software-properties-common
-      sudo apt-add-repository --yes --update ppa:ansible/ansible
-      sudo apt-get install -y ansible
+      apt-get update
+      apt-get install -y software-properties-common
+      apt-add-repository --yes --update ppa:ansible/ansible
+      apt-get install -y ansible
       ansible --version
     """
   } // stage
