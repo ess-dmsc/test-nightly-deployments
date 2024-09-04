@@ -19,50 +19,56 @@ properties([[
     artifactDaysToKeepStr: '',
     artifactNumToKeepStr: num_artifacts_to_keep,
     daysToKeepStr: '',
-    numToKeepStr: num_artifacts_to_keep
+    numToKeepStr: ''
   ]
 ]]);
 
+// Initialize the pipeline builder
 pipeline_builder = new PipelineBuilder(this, container_build_nodes)
+pipeline_builder.activateEmailFailureNotifications()
 
+// Define build stages
 builders = pipeline_builder.createBuilders { container ->
-
-  pipeline_builder.stage("${container.key}: Checkout GitLab Repo") {
+  pipeline_builder.stage("${container.key}: Checkout") {
     dir(pipeline_builder.project) {
-      // Git checkout using access token
-      container.sh """
-        git clone https://any_username:_58bVWB3aXGBENqrzHTK@gitlab.esss.lu.se/ecdc/dm-ansible.git
-      """
+      scm_vars = checkout scm
     }
     container.copyTo(pipeline_builder.project, pipeline_builder.project)
   }  // stage
 
-  pipeline_builder.stage("${container.key}: Check Python Version") {
+  pipeline_builder.stage("${container.key}: Setup Python Environment") {
     container.sh """
-      which python
-      python --version
+      which python3
+      python3 --version
+      python3 -m venv venv
+      . venv/bin/activate
+      python3 -m pip install --upgrade pip
+      python3 --version
     """
   } // stage
 
   pipeline_builder.stage("${container.key}: Ansible Deployment") {
     container.sh """
-      find . -maxdepth 2 -name
-
       which ansible
       ansible --version
       ansible-playbook -i ${pipeline_builder.project}/inventories/site \
       -l efu0234 ${pipeline_builder.project}/efu.yml
     """
   } // stage
-
 }  // createBuilders
 
-// Parallel execution of builders
-try {
-  parallel builders
-} catch (e) {
-  throw e
-}
+// Execute the pipeline
+node {
+  dir("${project}") {
+    scm_vars = checkout scm
+  }
 
-// Clean workspace after build
-cleanWs()
+  try {
+    parallel builders
+  } catch (e) {
+    throw e
+  }
+
+  // Clean up the workspace when the build is complete
+  cleanWs()
+}
