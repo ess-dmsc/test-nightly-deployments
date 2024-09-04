@@ -46,12 +46,9 @@ builders = pipeline_builder.createBuilders { container ->
     """
   } // stage
 
-  pipeline_builder.stage("${container.key}: Ansible Deployment") {
+  pipeline_builder.stage("${container.key}: Run Ansible") {
     container.sh """
-      which ansible
-      ansible --version
       pwd
-      find ${pipeline_builder.project} -maxdepth 2
     """
   } // stage
 }  // createBuilders
