@@ -46,14 +46,14 @@ builders = pipeline_builder.createBuilders { container ->
     """
   } // stage
 
-  pipeline_builder.stage("${container.key}: Ansible Deployment") {
-    container.sh """
-      which ansible
-      ansible --version
-      ansible-playbook -i ${pipeline_builder.project}/inventories/site \
-      -l efu0234 ${pipeline_builder.project}/efu.yml
-    """
-  } // stage
+  // pipeline_builder.stage("${container.key}: Ansible Deployment") {
+  //   container.sh """
+  //     which ansible
+  //     ansible --version
+  //     ansible-playbook -i ${pipeline_builder.project}/inventories/site \
+  //     -l efu0234 ${pipeline_builder.project}/efu.yml
+  //   """
+  // } // stage
 }  // createBuilders
 
 // Execute the pipeline
