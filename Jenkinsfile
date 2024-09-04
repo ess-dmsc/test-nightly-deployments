@@ -45,10 +45,6 @@ builders = pipeline_builder.createBuilders { container ->
   } // stage
 }  // createBuilders
 
-builders.each { builder ->
-  builder.skipUpload()
-}
-
 // Execute the pipeline
 node {
   dir("${project}") {
