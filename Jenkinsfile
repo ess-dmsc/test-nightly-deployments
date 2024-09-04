@@ -41,12 +41,13 @@ builders = pipeline_builder.createBuilders { container ->
     container.sh """
       which python
       python --version
-      python -m pip install --user -r ${project}/requirements-dev.txt
     """
   } // stage
 
   pipeline_builder.stage("${container.key}: Ansible Deployment") {
     container.sh """
+      find . -maxdepth 2 -name
+
       which ansible
       ansible --version
       ansible-playbook -i ${pipeline_builder.project}/inventories/site \
