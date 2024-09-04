@@ -5,27 +5,15 @@ import ecdcpipeline.PipelineBuilder
 project = "nightly-builds"
 
 container_build_nodes = [
-  'ubuntu2204': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu2204')
+  'ubuntu': new ContainerBuildNode('dockerregistry.esss.dk/ecdc_group/build-node-images/ubuntu22.04-build-node:4.0.0', 'bash -e')
 ]
 
 // Define number of old builds to keep.
 num_artifacts_to_keep = '1'
 
-// Set number of old builds to keep.
-properties([[
-  $class: 'BuildDiscarderProperty',
-  strategy: [
-    $class: 'LogRotator',
-    artifactDaysToKeepStr: '',
-    artifactNumToKeepStr: num_artifacts_to_keep,
-    daysToKeepStr: '',
-    numToKeepStr: ''
-  ]
-]]);
 
 // Initialize the pipeline builder
 pipeline_builder = new PipelineBuilder(this, container_build_nodes)
-pipeline_builder.activateEmailFailureNotifications()
 
 // Define build stages
 builders = pipeline_builder.createBuilders { container ->
@@ -56,6 +44,10 @@ builders = pipeline_builder.createBuilders { container ->
     """
   } // stage
 }  // createBuilders
+
+builders.each { builder ->
+  builder.skipUpload()
+}
 
 // Execute the pipeline
 node {
