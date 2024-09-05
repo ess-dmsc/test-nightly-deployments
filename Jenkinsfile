@@ -38,24 +38,22 @@ builders = pipeline_builder.createBuilders { container ->
   }  // stage
 
 
-  // pipeline_builder.stage("${container.key}: Setup Python Environment") {
-  //   container.sh """
-  //     which python3
-  //     python3 --version
-  //     python3 -m venv venv
-  //     . venv/bin/activate
-  //     python3 -m pip install --upgrade pip
-  //     python3 --version
-  //   """
-  // } // stage
+  pipeline_builder.stage("${container.key}: Setup Python Environment") {
+    container.sh """
+      which python3
+      python3 --version
+      python3 -m venv venv
+      . venv/bin/activate
+      python3 -m pip install --upgrade pip
+      python3 --version
+    """
+  } // stage
 
+  // Install Ansible using Pip
   pipeline_builder.stage("${container.key}: Install Ansible") {
     container.sh """
-      apt-get update
-      apt-get install -y software-properties-common
-      apt-add-repository --yes --update ppa:ansible/ansible
-      apt-get install -y ansible
-      ansible --version
+      . venv/bin/activate
+      python3 -m pip install ansible
     """
   } // stage
 
