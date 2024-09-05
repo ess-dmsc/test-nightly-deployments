@@ -57,8 +57,9 @@ builders = pipeline_builder.createBuilders { container ->
     """
   } // stage
 
-  pipeline_builder.stage("${container.key}: Run Ansible") {
+  pipeline_builder.stage("${container.key}: Run Ansible Playbook") {
     container.sh """
+      . venv/bin/activate
       ansible-playbook -i ./dm-ansible/inventories/site \
       -l efu0234 ./dm-ansible/efu.yml
     """
