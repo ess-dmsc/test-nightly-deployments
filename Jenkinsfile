@@ -28,13 +28,17 @@ pipeline_builder = new PipelineBuilder(this, container_build_nodes)
 builders = pipeline_builder.createBuilders { container ->
 
   pipeline_builder.stage("${container.key}: Checkout GitLab Repo") {
+    withCredentials([
+      string(credentialsId: 'gitlab-accesstoken-dm-ansible-read-rights', variable: 'GITLAB_ACCESS_TOKEN')
+    ]) {
     dir(pipeline_builder.project) {
       // Git checkout using access token
       container.sh """
-        git clone https://any_username:_58bVWB3aXGBENqrzHTK@gitlab.esss.lu.se/ecdc/dm-ansible.git
+        git clone https://any_username:$GITLAB_ACCESS_TOKEN@gitlab.esss.lu.se/ecdc/dm-ansible.git
       """
     }
     container.copyTo(pipeline_builder.project, pipeline_builder.project)
+    }
   }  // stage
 
 
