@@ -57,17 +57,26 @@ builders = pipeline_builder.createBuilders { container ->
     """
   } // stage
 
-  // Run Ansible Playbook
-  pipeline_builder.stage("${container.key}: Run Ansible Playbook") {
-    withCredentials([string(credentialsId: 'ansible-vault-all', variable: 'VAULT_PASSWORD')]) {
-      container.sh """
-        . venv/bin/activate
-        ansible-playbook -i ./dm-ansible/inventories/site \
-        -l efu0234 ./dm-ansible/efu.yml \
-        --vault-password-file <(echo "$VAULT_PASSWORD")
-      """
-    }
-  } // stage
+// Run Ansible Playbook with ProxyJump
+pipeline_builder.stage("${container.key}: Run Ansible Playbook with ProxyJump") {
+  withCredentials([
+    string(credentialsId: 'ansible-vault-all', variable: 'VAULT_PASSWORD'),
+    string(credentialsId: 'ssh4-service-account-user', variable: 'SSH_USER'),
+    string(credentialsId: 'ssh4-service-account-key', variable: 'SSH_PASSWORD')
+  ]) {
+    container.sh """
+      . venv/bin/activate
+      sshpass -p "$SSH_PASSWORD" ansible-playbook -i ./dm-ansible/inventories/site \
+      -l efu0234 ./dm-ansible/efu.yml \
+      --vault-password-file <(echo "$VAULT_PASSWORD") \
+      --become-user=$SSH_USER \
+      --extra-vars "ansible_become_pass=$SSH_PASSWORD" \
+      --ssh-common-args="-o ProxyJump=$SSH_USER@ssh4.esss.dk"
+    """
+  }
+} // stage
+
+  
 }  // createBuilders
 
 
