@@ -35,6 +35,7 @@ pipeline_builder.stage("${container.key}: Checkout GitLab Repo") {
       // Git checkout using access token
       container.sh """
         git clone https://$GITLAB_USERNAME:$GITLAB_ACCESS_TOKEN@gitlab.esss.lu.se/ecdc/dm-ansible.git
+        cd dm-ansible
       """
     }
     container.copyTo(pipeline_builder.project, pipeline_builder.project)
@@ -58,7 +59,7 @@ pipeline_builder.stage("${container.key}: Checkout GitLab Repo") {
   pipeline_builder.stage("${container.key}: Install Ansible") {
     container.sh """
       . venv/bin/activate
-      python3 -m pip install ansible
+      pip install -r requirements.txt
     """
   } // stage
 
