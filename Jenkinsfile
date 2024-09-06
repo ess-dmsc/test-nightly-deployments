@@ -45,7 +45,6 @@ pipeline_builder.stage("${container.key}: Checkout GitLab Repo") {
 
   pipeline_builder.stage("${container.key}: Setup Python Environment") {
     container.sh """
-      ping -c 2 efu0234
       which python3
       python3 --version
       python3 -m venv venv
@@ -72,12 +71,11 @@ pipeline_builder.stage("${container.key}: Run Ansible Playbook with ProxyJump") 
   ]) {
     container.sh """
       . venv/bin/activate
-      sshpass -p "$SSH_PASSWORD" ansible-playbook -i ./dm-ansible/inventories/site \
+      ansible-playbook -i ./dm-ansible/inventories/site \
       -l efu0234 ./dm-ansible/efu.yml \
       --vault-password-file <(echo "$VAULT_PASSWORD") \
       --become-user=$SSH_USER \
-      --extra-vars "ansible_become_pass=$SSH_PASSWORD" \
-      --ssh-common-args="-o ProxyJump=$SSH_USER@ssh4.esss.dk"
+      --extra-vars "ansible_become_pass=$SSH_PASSWORD"
     """
   }
 } // stage
