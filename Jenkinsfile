@@ -45,6 +45,7 @@ pipeline_builder.stage("${container.key}: Checkout GitLab Repo") {
 
   pipeline_builder.stage("${container.key}: Setup Python Environment") {
     container.sh """
+      ping -c 2 efu0234
       which python3
       python3 --version
       python3 -m venv venv
