@@ -35,7 +35,6 @@ pipeline_builder.stage("${container.key}: Checkout GitLab Repo") {
       // Git checkout using access token
       container.sh """
         git clone https://$GITLAB_USERNAME:$GITLAB_ACCESS_TOKEN@gitlab.esss.lu.se/ecdc/dm-ansible.git
-        cd dm-ansible
       """
     }
     container.copyTo(pipeline_builder.project, pipeline_builder.project)
@@ -46,6 +45,7 @@ pipeline_builder.stage("${container.key}: Checkout GitLab Repo") {
 
   pipeline_builder.stage("${container.key}: Setup Python Environment") {
     container.sh """
+      cd dm-ansible
       which python3
       python3 --version
       python3 -m venv venv
@@ -58,6 +58,7 @@ pipeline_builder.stage("${container.key}: Checkout GitLab Repo") {
   // Install Ansible using Pip
   pipeline_builder.stage("${container.key}: Install Ansible") {
     container.sh """
+      cd dm-ansible
       . venv/bin/activate
       pip install -r requirements.txt
     """
@@ -71,9 +72,10 @@ pipeline_builder.stage("${container.key}: Run Ansible Playbook with ProxyJump") 
     string(credentialsId: 'ssh4-service-account-key', variable: 'SSH_PASSWORD')
   ]) {
     container.sh """
+      cd dm-ansible
       . venv/bin/activate
-      ansible-playbook -i ./dm-ansible/inventories/site \
-      -l efu0234 ./dm-ansible/efu.yml \
+      ansible-playbook -i ./inventories/site \
+      -l efu0234 ./efu.yml \
       --vault-password-file <(echo "$VAULT_PASSWORD") \
       --become-user=$SSH_USER \
       --extra-vars "ansible_become_pass=$SSH_PASSWORD"
